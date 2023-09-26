@@ -1,0 +1,24 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  nombre_usuario     String        @db.VarChar(30)
+  correo_electronico String        @id @db.VarChar(45)
+  rol                String        @db.VarChar(1)
+  credenciales       credenciales?
+}
+
+model credenciales {
+  usuario    String   @id @db.VarChar(45)
+  contrasena String   @db.VarChar(60)
+  usuarios   usuarios @relation(fields: [usuario], references: [correo_electronico], onDelete: Cascade, map: "credenciales_ibfk_1")
+}
