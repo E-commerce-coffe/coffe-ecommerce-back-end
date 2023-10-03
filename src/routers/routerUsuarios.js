@@ -7,6 +7,5 @@ router.get('/',controllersUsuarios.getUsers)
       .post('/login',controllersUsuarios.postLogin)
       /**llama a autenticar */
       .post('/autenticar',controllersUsuarios.authenticateToken)
-      
       ;
 module.exports= router;

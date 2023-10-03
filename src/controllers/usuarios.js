@@ -1,4 +1,4 @@
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient }= require('@prisma/client') 
 const prisma = new PrismaClient()
 const bcrypt = require('bcryptjs');
 // Encriptar contraseña
@@ -18,16 +18,16 @@ const getUsers = async (req, res) => {
 const postCreateUser = async (req, res) => {
   try {
 
-    const { nombre_usuario, correo_electronico, rol, credenciales } = req.body;
-    if (!nombre_usuario || !correo_electronico || !rol || !credenciales) {
+    const { NOMBRE_USUARIO, APELLIDO_USUARIO, DOCUMETO_USUAR, CORREO_USUARIO, TIPO_USUARIO, credenciales } = req.body;
+    if (!NOMBRE_USUARIO || !CORREO_USUARIO || !APELLIDO_USUARIO || !credenciales || !DOCUMETO_USUAR) {
       res.status(400).send('Los parámetros requeridos no están presentes');
       return;
     }
     console.log('entre ');
     // Verificar si el usuario ya existe
-    const usuarioExistente = await prisma.usuarios.findFirst({
+    const usuarioExistente = await prisma.personas.findFirst({
       where: {
-        correo_electronico: correo_electronico,
+        CORREO_USUARIO: CORREO_USUARIO,
       },
     });
 
@@ -35,16 +35,19 @@ const postCreateUser = async (req, res) => {
       res.status(400).json({ error: 'Ya existe un usuario con este correo electrónico' });
       return;
     }
+    console.log('entre y no existe');
     // Crear el usuario
-    const user = await prisma.usuarios.create({
+    const user = await prisma.personas.create({
       data: {
-        nombre_usuario,
-        correo_electronico,
-        rol,
-      },
-    })
+        NOMBRE_USUARIO,
+        APELLIDO_USUARIO,
+        DOCUMETO_USUAR,
+        CORREO_USUARIO,
+        TIPO_USUARIO,
+      }
+    });
     const saltRounds = 10;
-    bcrypt.hash(credenciales.contrasena, saltRounds, async function (err, hash) {
+    bcrypt.hash(credenciales.CONTRASENA_USUARIO, saltRounds, async function (err, hash) {
       if (err) {
         console.error(err);
         res.status(500).json({ error: 'Usuario no creado' });
@@ -54,8 +57,8 @@ const postCreateUser = async (req, res) => {
       // Crear las credenciales con la contraseña encriptada
       const creden = await prisma.credenciales.create({
         data: {
-          usuario: correo_electronico,
-          contrasena: hash
+          NOMBRE_USUARIO: CORREO_USUARIO,
+          CONTRASENA_USUARIO: hash
         },
       });
       /**valida si la contraseña que entre es */

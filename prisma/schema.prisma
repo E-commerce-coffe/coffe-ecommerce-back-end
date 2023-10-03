@@ -7,30 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model usuarios {
-  ID_USUARIO                                        Int            @id @default(autoincrement())
-  ID_PERSONA                                        Int
-  ID_CREDENCIAL                                     Int
-  TIPO_USUARIO                                      String         @db.Char(1)
-  credenciales_credenciales_ID_USUARIOTousuarios    credenciales[] @relation("credenciales_ID_USUARIOTousuarios")
-  personas_personas_ID_USUARIOTousuarios            personas[]     @relation("personas_ID_USUARIOTousuarios")
-  credenciales_usuarios_ID_CREDENCIALTocredenciales credenciales   @relation("usuarios_ID_CREDENCIALTocredenciales", fields: [ID_CREDENCIAL], references: [ID_CREDENCIAL], onUpdate: Restrict, map: "FK_USUARIOS_RELATIONS_CREDENCI")
-  personas_usuarios_ID_PERSONATopersonas            personas       @relation("usuarios_ID_PERSONATopersonas", fields: [ID_PERSONA], references: [ID_PERSONA], onUpdate: Restrict, map: "FK_USUARIOS_RELATIONS_PERSONAS")
-
-  @@index([ID_CREDENCIAL], map: "FK_USUARIOS_RELATIONS_CREDENCI")
-  @@index([ID_PERSONA], map: "FK_USUARIOS_RELATIONS_PERSONAS")
-}
-
-model credenciales {
-  ID_CREDENCIAL                                 Int        @id @default(autoincrement())
-  ID_USUARIO                                    Int
-  NOMBRE_USUARIO                                String     @db.Char(40)
-  CONTRASENA_USUARIO                            String     @db.Char(60)
-  usuarios_credenciales_ID_USUARIOTousuarios    usuarios   @relation("credenciales_ID_USUARIOTousuarios", fields: [ID_USUARIO], references: [ID_USUARIO], onUpdate: Restrict, map: "FK_CREDENCI_RELATIONS_USUARIOS")
-  usuarios_usuarios_ID_CREDENCIALTocredenciales usuarios[] @relation("usuarios_ID_CREDENCIALTocredenciales")
-
-  @@index([ID_USUARIO], map: "FK_CREDENCI_RELATIONS_USUARIOS_ID_USUARIO")
-}
 
 model detalle_factura {
   ID_LOTE           Int
@@ -68,18 +44,22 @@ model lote {
 
 model personas {
   ID_PERSONA                             Int        @id @default(autoincrement())
-  ID_USUARIO                             Int
-  ID_VENTA                               Int
   NOMBRE_USUARIO                         String     @db.Char(30)
   APELLIDO_USUARIO                       String     @db.Char(30)
   DOCUMETO_USUAR                         Int
-  CORREO_USUARIO                         String     @db.Char(40)
+  CORREO_USUARIO                         String     @db.Char(40) @unique
+  TIPO_USUARIO                           String     @db.Char(1)
+  credenciales                           credenciales?
   factura                                factura[]
-  usuarios_personas_ID_USUARIOTousuarios usuarios   @relation("personas_ID_USUARIOTousuarios", fields: [ID_USUARIO], references: [ID_USUARIO], onUpdate: Restrict, map: "FK_PERSONAS_RELATIONS_USUARIOS")
-  usuarios_usuarios_ID_PERSONATopersonas usuarios[] @relation("usuarios_ID_PERSONATopersonas")
   ventas                                 ventas[]
 
-  @@index([ID_USUARIO], map: "FK_PERSONAS_RELATIONS_USUARIOS")
+}
+
+model credenciales {
+  ID_CREDENCIAL    Int        @id @default(autoincrement())
+  NOMBRE_USUARIO   String     @db.Char(40) @unique // Campo único
+  CONTRASENA_USUARIO String   @db.Char(60)
+  personas         personas   @relation(fields: [NOMBRE_USUARIO], references: [CORREO_USUARIO], onDelete: Cascade, map: "credenciales_ibfk_1")
 }
 
 model productos {
