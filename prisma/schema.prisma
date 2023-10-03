@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,14 +8,112 @@ datasource db {
 }
 
 model usuarios {
-  nombre_usuario     String        @db.VarChar(30)
-  correo_electronico String        @id @db.VarChar(45)
-  rol                String        @db.VarChar(1)
-  credenciales       credenciales?
+  ID_USUARIO                                        Int            @id @default(autoincrement())
+  ID_PERSONA                                        Int
+  ID_CREDENCIAL                                     Int
+  TIPO_USUARIO                                      String         @db.Char(1)
+  credenciales_credenciales_ID_USUARIOTousuarios    credenciales[] @relation("credenciales_ID_USUARIOTousuarios")
+  personas_personas_ID_USUARIOTousuarios            personas[]     @relation("personas_ID_USUARIOTousuarios")
+  credenciales_usuarios_ID_CREDENCIALTocredenciales credenciales   @relation("usuarios_ID_CREDENCIALTocredenciales", fields: [ID_CREDENCIAL], references: [ID_CREDENCIAL], onUpdate: Restrict, map: "FK_USUARIOS_RELATIONS_CREDENCI")
+  personas_usuarios_ID_PERSONATopersonas            personas       @relation("usuarios_ID_PERSONATopersonas", fields: [ID_PERSONA], references: [ID_PERSONA], onUpdate: Restrict, map: "FK_USUARIOS_RELATIONS_PERSONAS")
+
+  @@index([ID_CREDENCIAL], map: "FK_USUARIOS_RELATIONS_CREDENCI")
+  @@index([ID_PERSONA], map: "FK_USUARIOS_RELATIONS_PERSONAS")
 }
 
 model credenciales {
-  usuario    String   @id @db.VarChar(45)
-  contrasena String   @db.VarChar(60)
-  usuarios   usuarios @relation(fields: [usuario], references: [correo_electronico], onDelete: Cascade, map: "credenciales_ibfk_1")
+  ID_CREDENCIAL                                 Int        @id @default(autoincrement())
+  ID_USUARIO                                    Int
+  NOMBRE_USUARIO                                String     @db.Char(40)
+  CONTRASENA_USUARIO                            String     @db.Char(60)
+  usuarios_credenciales_ID_USUARIOTousuarios    usuarios   @relation("credenciales_ID_USUARIOTousuarios", fields: [ID_USUARIO], references: [ID_USUARIO], onUpdate: Restrict, map: "FK_CREDENCI_RELATIONS_USUARIOS")
+  usuarios_usuarios_ID_CREDENCIALTocredenciales usuarios[] @relation("usuarios_ID_CREDENCIALTocredenciales")
+
+  @@index([ID_USUARIO], map: "FK_CREDENCI_RELATIONS_USUARIOS_ID_USUARIO")
+}
+
+model detalle_factura {
+  ID_LOTE           Int
+  ID_FACTURA        Int
+  UNIDADES_PRODUCTO Int
+  SUB_TOTAL_PRECIO  Float   @db.Float
+  factura           factura @relation(fields: [ID_FACTURA], references: [ID_FACTURA], onUpdate: Restrict, map: "FK_RELATION_RELATIONS_FACTURA")
+  lote              lote    @relation(fields: [ID_LOTE], references: [ID_LOTE], onUpdate: Restrict, map: "FK_RELATION_RELATIONS_LOTE")
+
+  @@id([ID_LOTE, ID_FACTURA])
+  @@index([ID_FACTURA], map: "FK_RELATION_RELATIONS_FACTURA")
+}
+
+model factura {
+  ID_FACTURA      Int               @id @default(autoincrement())
+  ID_PERSONA      Int
+  VALOR_TOTAL     Float             @db.Float
+  FECHA_FACTURA   DateTime          @db.DateTime(0)
+  detalle_factura detalle_factura[]
+  personas        personas          @relation(fields: [ID_PERSONA], references: [ID_PERSONA], onUpdate: Restrict, map: "FK_FACTURA_FACTURA_F_PERSONAS")
+
+  @@index([ID_PERSONA], map: "FK_FACTURA_FACTURA_F_PERSONAS")
+}
+
+model lote {
+  ID_LOTE             Int               @id @default(autoincrement())
+  ID_PRODUCTO         Int
+  VALOR_LOTE_PRODUCTO Float             @db.Float
+  STOCK               Int
+  detalle_factura     detalle_factura[]
+  productos           productos         @relation(fields: [ID_PRODUCTO], references: [ID_PRODUCTO], onUpdate: Restrict, map: "FK_LOTE_RELATIONS_PRODUCTO")
+
+  @@index([ID_PRODUCTO], map: "FK_LOTE_RELATIONS_PRODUCTO")
+}
+
+model personas {
+  ID_PERSONA                             Int        @id @default(autoincrement())
+  ID_USUARIO                             Int
+  ID_VENTA                               Int
+  NOMBRE_USUARIO                         String     @db.Char(30)
+  APELLIDO_USUARIO                       String     @db.Char(30)
+  DOCUMETO_USUAR                         Int
+  CORREO_USUARIO                         String     @db.Char(40)
+  factura                                factura[]
+  usuarios_personas_ID_USUARIOTousuarios usuarios   @relation("personas_ID_USUARIOTousuarios", fields: [ID_USUARIO], references: [ID_USUARIO], onUpdate: Restrict, map: "FK_PERSONAS_RELATIONS_USUARIOS")
+  usuarios_usuarios_ID_PERSONATopersonas usuarios[] @relation("usuarios_ID_PERSONATopersonas")
+  ventas                                 ventas[]
+
+  @@index([ID_USUARIO], map: "FK_PERSONAS_RELATIONS_USUARIOS")
+}
+
+model productos {
+  ID_PRODUCTO     Int     @id @default(autoincrement())
+  NOMBRE_PRODUCTO String  @db.Char(30)
+  DESCRIPCION     String  @db.Char(90)
+  CATEGORIA       String  @db.Char(20)
+  PATH_IMAGEN     String? @db.Char(200)
+  ESTADO          String  @db.Char(1)
+  lote            lote[]
+}
+
+model ventas {
+  ID_VENTA         Int                @default(autoincrement())
+  ID_PERSONA       Int
+  FECHA_VENTA      DateTime           @db.DateTime(0)
+  VALOR_VENTA      Float              @db.Float
+  ESTADO_VENTA     String             @db.Char(1)
+  COMPROBANTE_PAGO String             @db.Char(200)
+  personas         personas           @relation(fields: [ID_PERSONA], references: [ID_PERSONA], onUpdate: Restrict, map: "FK_VENTAS_VENTAS_FK_PERSONAS")
+  ventas_productos ventas_productos[]
+
+  @@id([ID_VENTA, ID_PERSONA])
+  @@index([ID_PERSONA], map: "FK_VENTAS_VENTAS_FK_PERSONAS")
+}
+
+model ventas_productos {
+  ID_PRODUCTO           Int
+  ID_VENTA              Int
+  ID_PERSONA            Int
+  PRECIO_PRODUCTO_VENTA Int
+  CANTIDAD_PRODUCTO     Int
+  ventas                ventas @relation(fields: [ID_VENTA, ID_PERSONA], references: [ID_VENTA, ID_PERSONA], onUpdate: Restrict, map: "FK_VENTAS_P_VENTAPRO__VENTAS")
+
+  @@id([ID_PRODUCTO, ID_VENTA, ID_PERSONA])
+  @@index([ID_VENTA, ID_PERSONA], map: "FK_VENTAS_P_VENTAPRO__VENTAS")
 }
