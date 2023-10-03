@@ -7,11 +7,11 @@ const jwt = require('jsonwebtoken');
 
 const getUsers = async (req, res) => {
   try {
-    const allUsers = await prisma.usuarios.findMany()
+    const allUsers = await prisma.personas.findMany()
     res.json(allUsers);
   } catch (error) {
     res.status(500);
-    res.send('Usuarios no econtrados/error');
+    res.send('Personas no econtrados/error');
   }
 };
 
@@ -61,20 +61,11 @@ const postCreateUser = async (req, res) => {
           CONTRASENA_USUARIO: hash
         },
       });
-      /**valida si la contraseña que entre es */
-
       // Devolver una respuesta JSON con el usuario creado
       res.status(201).json({
         message: 'Usuario creado correctamente',
-        body: {
-          user: { nombre_usuario, correo_electronico, rol, credenciales: creden.contrasena },
-        },
       });
-      console.log(hash);
-    }
-    
-    );
-    
+    } ); 
   }
   
   catch (error) {
@@ -88,44 +79,35 @@ const postLogin = async (req, res) => {
   try {
     const { usuario, contrasena } = req.body;
     if (!(usuario && contrasena)) {
-      res.status(400).send("Los parámetros requeridos no están presentes");
+      return res.status(400).send("Los parámetros requeridos no están presentes");
     }
-    console.log('entre ');
-    // Verificar si el usuario ya existe
-    const user = await prisma.credenciales.findUnique({ where: { usuario } });
-
-
-    bcrypt.compare(contrasena, user.contrasena, function (err, result) {
-      // result == true
-      console.log(result);
-    });
-    if (user && (await bcrypt.compare(contrasena, user.contrasena) == true)) {
-      console.log('contrasena correcta')
+    const person = await prisma.credenciales.findUnique({ where: { NOMBRE_USUARIO: usuario } });
+    
+    if (!person) {
+      return res.status(400).send("Usuario no encontrado");
     }
-    const token = jwt.sign(
-      {
-        usuario: user.usuario,
-        id: user.id,
-        contrasena: user.contrasena
-      },
-      process.env.JWT_SECRET,
-      {
+    console.log('entro login ');
+
+    if (await validatePassword(contrasena, usuario)) {
+      console.log('contraseña correcta');
+      const token = jwt.sign({}, process.env.JWT_SECRET, {
         expiresIn: '60s',
-      }
-    );
-    // Devolver una respuesta JSON con el usuario creado
-    user.token
-    res.status(201).json({
-      message: 'Inicio de sesión correcto',
-      body: {
-        user: { usuario ,token},
-      },
-    });
+      });
+      return res.json({ token: token, message: 'Inicio de sesión correcto' });
+    } else {
+      return res.status(400).send("Usuario o contraseña incorrectos");
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Sesion incorrecta/token no generado' });
+    return next(error); // Pasa el control al middleware de manejo de errores
   }
 };
+/**valida contrasena ingresada con el hash */
+const validatePassword = async (password,usuario) => {
+  const person= await prisma.credenciales.findUnique({ where: { NOMBRE_USUARIO: usuario } });
+  return await bcrypt.compare(password, person.CONTRASENA_USUARIO);
+};
+
 /**genere el metodod para autenticar el jwt y dar accedo a otras rutas */
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
