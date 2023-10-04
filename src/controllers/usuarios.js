@@ -1,6 +1,7 @@
 const { PrismaClient }= require('@prisma/client') 
 const prisma = new PrismaClient()
 const bcrypt = require('bcryptjs');
+const CryptoJS = require('crypto-js');
 // Encriptar contraseña
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -76,8 +77,20 @@ const postCreateUser = async (req, res) => {
 
 /**generea metodo para verificar la sesion con la tabla credenciales y genera un jwt */
 const postLogin = async (req, res) => {
+  const secretKey = process.env.SECRET_SEND;
   try {
-    const { usuario, contrasena } = req.body;
+    const usuarioCript = req.body.usuario;
+    const contrasenaCript = req.body.contrasena;
+    const usuarioBytes = CryptoJS.AES.decrypt(usuarioCript, secretKey);
+    const contrasenaBytes = CryptoJS.AES.decrypt(contrasenaCript, secretKey);
+
+    const usuarioDesencriptado = usuarioBytes.toString(CryptoJS.enc.Utf8);
+    const contrasenaDesencriptada = contrasenaBytes.toString(CryptoJS.enc.Utf8);
+
+    console.log('Usuario desencriptado:', usuarioDesencriptado);
+    console.log('Contraseña desencriptada:', contrasenaDesencriptada);
+    usuario = usuarioDesencriptado;
+    contrasena= contrasenaDesencriptada;
     if (!(usuario && contrasena)) {
       return res.status(400).send("Los parámetros requeridos no están presentes");
     }
