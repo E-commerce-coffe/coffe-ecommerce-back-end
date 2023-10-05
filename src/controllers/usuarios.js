@@ -19,8 +19,8 @@ const getUsers = async (req, res) => {
 const postCreateUser = async (req, res) => {
   try {
 
-    const { NOMBRE_USUARIO, APELLIDO_USUARIO, DOCUMETO_USUAR, CORREO_USUARIO, TIPO_USUARIO, credenciales } = req.body;
-    if (!NOMBRE_USUARIO || !CORREO_USUARIO || !APELLIDO_USUARIO || !credenciales || !DOCUMETO_USUAR) {
+    const { NOMBRE_USUARIO, APELLIDO_USUARIO, DOCUMENTO_USUARIO,TIPO_DOCUMENTO, CORREO_USUARIO, TIPO_USUARIO, credenciales } = req.body;
+    if (!NOMBRE_USUARIO || !CORREO_USUARIO || !APELLIDO_USUARIO || !credenciales || !DOCUMENTO_USUARIO||!TIPO_DOCUMENTO) {
       res.status(400).send('Los parámetros requeridos no están presentes');
       return;
     }
@@ -42,9 +42,10 @@ const postCreateUser = async (req, res) => {
       data: {
         NOMBRE_USUARIO,
         APELLIDO_USUARIO,
-        DOCUMETO_USUAR,
+        DOCUMENTO_USUARIO,
         CORREO_USUARIO,
         TIPO_USUARIO,
+        TIPO_DOCUMENTO,
       }
     });
     const saltRounds = 10;
