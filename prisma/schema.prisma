@@ -9,47 +9,47 @@ datasource db {
 
 
 model detalle_factura {
-  ID_LOTE           Int
-  ID_FACTURA        Int
-  UNIDADES_PRODUCTO Int
-  SUB_TOTAL_PRECIO  Float   @db.Float
-  factura           factura @relation(fields: [ID_FACTURA], references: [ID_FACTURA], onUpdate: Restrict, map: "FK_RELATION_RELATIONS_FACTURA")
-  lote              lote    @relation(fields: [ID_LOTE], references: [ID_LOTE], onUpdate: Restrict, map: "FK_RELATION_RELATIONS_LOTE")
+  id_lote           Int
+  id_factura        Int
+  unidades_producto Int
+  sub_total_precio  Float   @db.Float
+  factura           factura @relation(fields: [id_factura], references: [id_factura], onUpdate: Restrict, map: "fk_relation_relations_factura")
+  lote              lote    @relation(fields: [id_lote], references: [id_lote], onUpdate: Restrict, map: "fk_relation_relations_lote")
 
-  @@id([ID_LOTE, ID_FACTURA])
-  @@index([ID_FACTURA], map: "FK_RELATION_RELATIONS_FACTURA")
+  @@id([id_lote, id_factura])
+  @@index([id_factura], map: "fk_relation_relations_factura")
 }
 
 model factura {
-  ID_FACTURA      Int               @id @default(autoincrement())
-  ID_PERSONA      Int
-  VALOR_TOTAL     Float             @db.Float
-  FECHA_FACTURA   DateTime          @db.DateTime(0)
+  id_factura      Int               @id @default(autoincrement())
+  id_persona      Int
+  valor_total     Float             @db.Float
+  fecha_factura   DateTime          @db.DateTime(0)
   detalle_factura detalle_factura[]
-  personas        personas          @relation(fields: [ID_PERSONA], references: [ID_PERSONA], onUpdate: Restrict, map: "FK_FACTURA_FACTURA_F_PERSONAS")
+  personas        personas          @relation(fields: [id_persona], references: [id_persona], onUpdate: Restrict, map: "fk_factura_factura_f_personas")
 
-  @@index([ID_PERSONA], map: "FK_FACTURA_FACTURA_F_PERSONAS")
+  @@index([id_persona], map: "fk_factura_factura_f_personas")
 }
 
 model lote {
-  ID_LOTE             Int               @id @default(autoincrement())
-  ID_PRODUCTO         Int
-  VALOR_LOTE_PRODUCTO Float             @db.Float
-  STOCK               Int
+  id_lote             Int               @id @default(autoincrement())
+  id_producto         Int
+  valor_lote_producto Float             @db.Float
+  stock               Int
   detalle_factura     detalle_factura[]
-  productos           productos         @relation(fields: [ID_PRODUCTO], references: [ID_PRODUCTO], onUpdate: Restrict, map: "FK_LOTE_RELATIONS_PRODUCTO")
+  productos           productos         @relation(fields: [id_producto], references: [id_producto], onUpdate: Restrict, map: "fk_lote_relations_producto")
 
-  @@index([ID_PRODUCTO], map: "FK_LOTE_RELATIONS_PRODUCTO")
+  @@index([id_producto], map: "fk_lote_relations_producto")
 }
 
 model personas {
-  ID_PERSONA                             Int        @id @default(autoincrement())
-  NOMBRE_USUARIO                         String     @db.Char(30)
-  APELLIDO_USUARIO                       String     @db.Char(30)
-  DOCUMENTO_USUARIO                         Int
-  TIPO_DOCUMENTO                         String     @db.Char(2)
-  CORREO_USUARIO                         String     @db.Char(40) @unique
-  TIPO_USUARIO                           String     @db.Char(1)
+  id_persona                             Int        @id @default(autoincrement())
+  nombre_usuario                         String     @db.Char(30)
+  apellido_usuario                       String     @db.Char(30)
+  documento_usuario                         Int     @unique
+  tipo_documento                         String     @db.Char(2)
+  correo_usuario                         String     @db.Char(40) @unique
+  tipo_usuario                           String     @db.Char(1)
   credenciales                           credenciales?
   factura                                factura[]
   ventas                                 ventas[]
@@ -57,44 +57,44 @@ model personas {
 }
 
 model credenciales {
-  ID_CREDENCIAL    Int        @id @default(autoincrement())
-  NOMBRE_USUARIO   String     @db.Char(40) @unique // Campo único
-  CONTRASENA_USUARIO String   @db.Char(60)
-  personas         personas   @relation(fields: [NOMBRE_USUARIO], references: [CORREO_USUARIO], onDelete: Cascade, map: "credenciales_ibfk_1")
+  id_credencial    Int        @id @default(autoincrement())
+  nombre_usuario   String     @db.Char(40) @unique // Campo único
+  contrasena_usuario String   @db.Char(60)
+  personas         personas   @relation(fields: [nombre_usuario], references: [correo_usuario], onDelete: Cascade, map: "credenciales_ibfk_1")
 }
 
 model productos {
-  ID_PRODUCTO     Int     @id @default(autoincrement())
-  NOMBRE_PRODUCTO String  @db.Char(30)
-  DESCRIPCION     String  @db.Char(90)
-  CATEGORIA       String  @db.Char(20)
-  PATH_IMAGEN     String? @db.Char(200)
-  ESTADO          String  @db.Char(1)
+  id_producto     Int     @id @default(autoincrement())
+  nombre_producto String  @db.Char(30)
+  descripcion     String  @db.Char(90)
+  categoria       String  @db.Char(20)
+  path_imagen     String? @db.Char(200)
+  estado          String  @db.Char(1)
   lote            lote[]
 }
 
 model ventas {
-  ID_VENTA         Int                @default(autoincrement())
-  ID_PERSONA       Int
-  FECHA_VENTA      DateTime           @db.DateTime(0)
-  VALOR_VENTA      Float              @db.Float
-  ESTADO_VENTA     String             @db.Char(1)
-  COMPROBANTE_PAGO String             @db.Char(200)
-  personas         personas           @relation(fields: [ID_PERSONA], references: [ID_PERSONA], onUpdate: Restrict, map: "FK_VENTAS_VENTAS_FK_PERSONAS")
+  id_venta         Int                @default(autoincrement())
+  id_persona       Int
+  fecha_venta      DateTime           @db.DateTime(0)
+  valor_venta      Float              @db.Float
+  estado_venta     String             @db.Char(1)
+  comprobante_pago String             @db.Char(200)
+  personas         personas           @relation(fields: [id_persona], references: [id_persona], onUpdate: Restrict, map: "fk_ventas_ventas_fk_personas")
   ventas_productos ventas_productos[]
 
-  @@id([ID_VENTA, ID_PERSONA])
-  @@index([ID_PERSONA], map: "FK_VENTAS_VENTAS_FK_PERSONAS")
+  @@id([id_venta, id_persona])
+  @@index([id_persona], map: "fk_ventas_ventas_fk_personas")
 }
 
 model ventas_productos {
-  ID_PRODUCTO           Int
-  ID_VENTA              Int
-  ID_PERSONA            Int
-  PRECIO_PRODUCTO_VENTA Int
-  CANTIDAD_PRODUCTO     Int
-  ventas                ventas @relation(fields: [ID_VENTA, ID_PERSONA], references: [ID_VENTA, ID_PERSONA], onUpdate: Restrict, map: "FK_VENTAS_P_VENTAPRO__VENTAS")
+  id_producto           Int
+  id_venta              Int
+  id_persona            Int
+  precio_producto_venta Int
+  cantidad_producto     Int
+  ventas                ventas @relation(fields: [id_venta, id_persona], references: [id_venta, id_persona], onUpdate: Restrict, map: "fk_ventas_p_ventapro__ventas")
 
-  @@id([ID_PRODUCTO, ID_VENTA, ID_PERSONA])
-  @@index([ID_VENTA, ID_PERSONA], map: "FK_VENTAS_P_VENTAPRO__VENTAS")
+  @@id([id_producto, id_venta, id_persona])
+  @@index([id_venta, id_persona], map: "fk_ventas_p_ventapro__ventas")
 }

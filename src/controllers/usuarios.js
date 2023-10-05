@@ -18,9 +18,9 @@ const getUsers = async (req, res) => {
 
 const postCreateUser = async (req, res) => {
   try {
-
-    const { NOMBRE_USUARIO, APELLIDO_USUARIO, DOCUMENTO_USUARIO,TIPO_DOCUMENTO, CORREO_USUARIO, TIPO_USUARIO, credenciales } = req.body;
-    if (!NOMBRE_USUARIO || !CORREO_USUARIO || !APELLIDO_USUARIO || !credenciales || !DOCUMENTO_USUARIO||!TIPO_DOCUMENTO) {
+    console.log(req.body);
+    const { nombre_usuario, apellido_usuario, documento_usuario,correo_usuario, tipo_documento, tipo_usuario, credenciales } = req.body;
+    if (!nombre_usuario || !apellido_usuario || !documento_usuario || !correo_usuario || !tipo_documento||!tipo_usuario ||!credenciales) {
       res.status(400).send('Los parámetros requeridos no están presentes');
       return;
     }
@@ -28,7 +28,7 @@ const postCreateUser = async (req, res) => {
     // Verificar si el usuario ya existe
     const usuarioExistente = await prisma.personas.findFirst({
       where: {
-        CORREO_USUARIO: CORREO_USUARIO,
+        correo_usuario: correo_usuario,
       },
     });
 
@@ -40,16 +40,16 @@ const postCreateUser = async (req, res) => {
     // Crear el usuario
     const user = await prisma.personas.create({
       data: {
-        NOMBRE_USUARIO,
-        APELLIDO_USUARIO,
-        DOCUMENTO_USUARIO,
-        CORREO_USUARIO,
-        TIPO_USUARIO,
-        TIPO_DOCUMENTO,
+        nombre_usuario,
+        apellido_usuario,
+        documento_usuario,
+        correo_usuario,
+        tipo_documento,
+        tipo_usuario,
       }
     });
     const saltRounds = 10;
-    bcrypt.hash(credenciales.CONTRASENA_USUARIO, saltRounds, async function (err, hash) {
+    bcrypt.hash(credenciales.contrasena_usuario, saltRounds, async function (err, hash) {
       if (err) {
         console.error(err);
         res.status(500).json({ error: 'Usuario no creado' });
@@ -59,8 +59,8 @@ const postCreateUser = async (req, res) => {
       // Crear las credenciales con la contraseña encriptada
       const creden = await prisma.credenciales.create({
         data: {
-          NOMBRE_USUARIO: CORREO_USUARIO,
-          CONTRASENA_USUARIO: hash
+          nombre_usuario: correo_usuario,
+          contrasena_usuario: hash
         },
       });
       // Devolver una respuesta JSON con el usuario creado
@@ -78,6 +78,7 @@ const postCreateUser = async (req, res) => {
 
 /**generea metodo para verificar la sesion con la tabla credenciales y genera un jwt */
 const postLogin = async (req, res) => {
+  console.log(req.body);
   const secretKey = process.env.SECRET_SEND;
   try {
     const usuarioCript = req.body.usuario;
@@ -95,7 +96,7 @@ const postLogin = async (req, res) => {
     if (!(usuario && contrasena)) {
       return res.status(400).send("Los parámetros requeridos no están presentes");
     }
-    const person = await prisma.credenciales.findUnique({ where: { NOMBRE_USUARIO: usuario } });
+    const person = await prisma.credenciales.findUnique({ where: { nombre_usuario: usuario } });
     
     if (!person) {
       return res.status(400).send("Usuario no encontrado");
@@ -118,8 +119,8 @@ const postLogin = async (req, res) => {
 };
 /**valida contrasena ingresada con el hash */
 const validatePassword = async (password,usuario) => {
-  const person= await prisma.credenciales.findUnique({ where: { NOMBRE_USUARIO: usuario } });
-  return await bcrypt.compare(password, person.CONTRASENA_USUARIO);
+  const person= await prisma.credenciales.findUnique({ where: { nombre_usuario: usuario } });
+  return await bcrypt.compare(password, person.contrasena_usuario);
 };
 
 /**genere el metodod para autenticar el jwt y dar accedo a otras rutas */
