@@ -46,7 +46,8 @@ model personas {
   ID_PERSONA                             Int        @id @default(autoincrement())
   NOMBRE_USUARIO                         String     @db.Char(30)
   APELLIDO_USUARIO                       String     @db.Char(30)
-  DOCUMETO_USUAR                         Int
+  DOCUMENTO_USUARIO                         Int
+  TIPO_DOCUMENTO                         String     @db.Char(2)
   CORREO_USUARIO                         String     @db.Char(40) @unique
   TIPO_USUARIO                           String     @db.Char(1)
   credenciales                           credenciales?
