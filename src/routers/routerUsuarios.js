@@ -5,6 +5,8 @@ const controllersUsuarios = require('../controllers/usuarios');
 router.get('/',controllersUsuarios.getUsers)
       .post('/create',controllersUsuarios.postCreateUser)
       .post('/login',controllersUsuarios.postLogin)
+      .put('/forgot-password',controllersUsuarios.putForgotPassword)
+      .put('/reset-password',controllersUsuarios.putResetPassword)
       /**llama a autenticar */
       .post('/autenticar',controllersUsuarios.authenticateToken)
       ;

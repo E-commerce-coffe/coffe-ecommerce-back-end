@@ -46,10 +46,11 @@ model personas {
   id_persona                             Int        @id @default(autoincrement())
   nombre_usuario                         String     @db.Char(30)
   apellido_usuario                       String     @db.Char(30)
-  documento_usuario                         Int     @unique
+  documento_usuario                         Int
   tipo_documento                         String     @db.Char(2)
   correo_usuario                         String     @db.Char(40) @unique
   tipo_usuario                           String     @db.Char(1)
+  token_password                         String?    @db.Char(200)
   credenciales                           credenciales?
   factura                                factura[]
   ventas                                 ventas[]
@@ -98,3 +99,4 @@ model ventas_productos {
   @@id([id_producto, id_venta, id_persona])
   @@index([id_venta, id_persona], map: "fk_ventas_p_ventapro__ventas")
 }
+

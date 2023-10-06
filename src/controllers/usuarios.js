@@ -123,8 +123,103 @@ const validatePassword = async (password,usuario) => {
   return await bcrypt.compare(password, person.contrasena_usuario);
 };
 
+const putForgotPassword =async(req,res)=>{
+  const { username, } = req.body;
+  if(!username){
+    return res.status(400).send('Los parámetros requeridos no están presentes');
+  }
+  const message= 'Revisa tu correo electrónico para restablecer tu contraseña';
+  let verificationlink;
+  let emailstatus="OK";
+  try {
+    user= await prisma.personas.findUnique({where:{correo_usuario:username}});
+    const token = jwt.sign({}, process.env.JWT_SECRET,{expiresIn:'10m'});
+    verificationlink=`http://localhost:3000/users/reset-password/${token}`;
+    let resetToken= token;
+    console.log(resetToken);
+    await prisma.personas.update({
+      where: {
+        correo_usuario: username
+      },
+      data: {
+        token_password: resetToken
+      },
+    });
+    } catch (error) {
+      return res.status(500).json({message:'Error al guardar el token'});      
+    }
+  //enviar correo electrónico
+  // email
+
+  res.json({message,infor:emailstatus,test:verificationlink});
+
+}
+
+const putResetPassword= async(req,res)=>{
+  const {newpassword}= req.body;
+  const resetToken= req.headers.reset;
+  let correoUsuario
+  console.log(resetToken);
+  if(!newpassword || !resetToken){
+    return res.status(400).send('Los parámetros requeridos no están presentes');
+  }
+  let jwtPayload;
+  try {
+    const persona = await prisma.personas.findFirst({
+      where: {
+        token_password: resetToken,
+      },
+    });
+  
+    
+      correoUsuario = persona.correo_usuario;
+      console.log("Correo del usuario:", correoUsuario);
+    
+    jwtPayload = jwt.verify(resetToken, process.env.JWT_SECRET);
+  } catch (error) {
+    // Manejar errores de verificación del token, por ejemplo, token inválido o expirado
+    return res.status(401).json({ message: 'Token inválido',error });
+  }
+
+  try {
+    bcrypt.hash(newpassword, saltRounds, async function (err, hash) {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Usuario no creado' });
+        return;
+      }
+      console.log(hash);
+  
+      const validateuser = await prisma.personas.update({
+        where: {
+          token_password: resetToken,
+          correo_usuario: correoUsuario
+        },
+        data: {
+          credenciales: {
+            update: {
+              contrasena_usuario: hash,
+            },
+          },
+          token_password: null, // Limpia el campo resetToken después de cambiar la contraseña
+        },
+      });
+  
+      // Resto del código de respuesta aquí...
+    });
+  } catch (error) {
+    return res.status(401).json({message:'no fue posible cambiar la contraseña'});
+    
+  }
+
+  res.json({message:'contraseña cambiada correctamente'});
+}
+
 /**genere el metodod para autenticar el jwt y dar accedo a otras rutas */
 const authenticateToken = (req, res, next) => {
+
+
+
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   if (token == null) return res.sendStatus(401);
@@ -145,5 +240,7 @@ module.exports = {
   getUsers,
   postCreateUser,
   postLogin,
-  authenticateToken
+  authenticateToken,
+  putForgotPassword,
+  putResetPassword
 }
