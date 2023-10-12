@@ -4,7 +4,8 @@
   "description": "proyect ecommerce",
   "main": "src/index.js",
   "scripts": {
-    "dev": "npx nodemon src/index.js"
+    "dev": "npx nodemon src/index.js",
+    "test": "cypress open --browser edge --e2e"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "prisma": "^5.2.0"
   },
   "devDependencies": {
+    "cypress": "^13.3.1",
     "prisma": "^4.13.0"
   }
 }
