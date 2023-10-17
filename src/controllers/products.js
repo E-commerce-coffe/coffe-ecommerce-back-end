@@ -5,13 +5,33 @@ const prisma = new PrismaClient()
 
 const getProducst = async (req, res) => {
     try {
-        const allUsers = await prisma.productos.findMany()
-        res.json(allUsers);
+        const allProducts = await prisma.productos.findMany({
+            include: {
+                lote: {
+                    select: {
+                        valor_lote_producto: true
+                    }
+                }
+            }
+        });
+
+        const productLoteValues = allProducts.map((product) => {
+            const valorLote = product.lote[0] ? product.lote[0].valor_lote_producto : null;
+            return {
+                nombre_producto: product.nombre_producto,
+                descripcion: product.descripcion,
+                pathimag:product.path_imagen,
+                valorLote: valorLote
+            };
+        });
+
+        res.json(productLoteValues);
     } catch (error) {
-        res.status(500);
-        res.send('Personas no econtrados/error');
+        console.error(error);
+        res.status(500).send('Error al obtener los productos');
     }
 };
+
 
 const postCreatePorduct = async (req, res) => {
     try {
@@ -45,7 +65,7 @@ const postCreatePorduct = async (req, res) => {
             },
         });
         
-        return res.status(200).json(producto); // Enviar la respuesta al cliente
+        return res.status(200).json(producto,); // Enviar la respuesta al cliente
     } catch (error) {
         console.error(error);
         return res.status(500).send('Error al crear el producto');
