@@ -10,7 +10,9 @@ app.use(cors());
 app.use(bodyParser.json())
 
 const workUsuarios= require('./routers/routerUsuarios');
+const workProductos= require('./routers/routerProducts');
 app.use('/users',workUsuarios);
+app.use('/products',workProductos);
 
 //config
 app.set('port', process.env.PORT || 3000);
