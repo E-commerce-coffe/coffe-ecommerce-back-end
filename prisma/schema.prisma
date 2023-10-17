@@ -37,7 +37,7 @@ model lote {
   valor_lote_producto Float             @db.Float
   stock               Int
   detalle_factura     detalle_factura[]
-  productos           productos         @relation(fields: [id_producto], references: [id_producto], onUpdate: Restrict, map: "fk_lote_relations_producto")
+  productos           productos         @relation(fields: [id_producto], references: [id_producto], onDelete: Cascade, onUpdate: Cascade, map: "fk_lote_relations_producto")
 
   @@index([id_producto], map: "fk_lote_relations_producto")
 }
@@ -72,6 +72,8 @@ model productos {
   path_imagen     String? @db.Char(200)
   estado          String  @db.Char(1)
   lote            lote[]
+
+   @@index([id_producto], map: "fk_lote_relations_producto")
 }
 
 model ventas {

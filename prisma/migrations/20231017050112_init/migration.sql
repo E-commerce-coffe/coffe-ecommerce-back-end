@@ -65,6 +65,7 @@ CREATE TABLE `productos` (
     `path_imagen` CHAR(200) NULL,
     `estado` CHAR(1) NOT NULL,
 
+    INDEX `fk_lote_relations_producto`(`id_producto`),
     PRIMARY KEY (`id_producto`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -103,7 +104,7 @@ ALTER TABLE `detalle_factura` ADD CONSTRAINT `fk_relation_relations_lote` FOREIG
 ALTER TABLE `factura` ADD CONSTRAINT `fk_factura_factura_f_personas` FOREIGN KEY (`id_persona`) REFERENCES `personas`(`id_persona`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE `lote` ADD CONSTRAINT `fk_lote_relations_producto` FOREIGN KEY (`id_producto`) REFERENCES `productos`(`id_producto`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `lote` ADD CONSTRAINT `fk_lote_relations_producto` FOREIGN KEY (`id_producto`) REFERENCES `productos`(`id_producto`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `credenciales` ADD CONSTRAINT `credenciales_ibfk_1` FOREIGN KEY (`nombre_usuario`) REFERENCES `personas`(`correo_usuario`) ON DELETE CASCADE ON UPDATE CASCADE;
