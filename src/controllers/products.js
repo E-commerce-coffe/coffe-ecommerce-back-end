@@ -75,13 +75,13 @@ const postCreatePorduct = async (req, res) => {
 
 const getOneProduct = async (req, res) => {
     try {
-        console.log(req.headers);
+        console.log(req.query.id);
 
         if (req.params == null) {
             res.status(400).send('No hay parámetros');
             return;
         }
-        const id = parseInt(req.headers.id);
+        const id = parseInt(req.query.id);
         console.log(id);
 
         if (isNaN(id)) {
