@@ -73,8 +73,36 @@ const postCreatePorduct = async (req, res) => {
     }
 };
 
+const getOneProduct = async (req, res) => {
+    try {
+        const id = parseInt(req.body.id_producto);
+        console.log(id);
+
+        if (isNaN(id)) {
+            res.status(400).send('El parámetro "id" debe ser un número válido.');
+            return;
+        }
+
+        const product = await prisma.productos.findUnique({
+            where: {
+                id_producto: id,
+            },
+        });
+
+        if (product == null) {
+            res.status(404).send('No se encontró el producto');
+            return;
+        }
+
+        res.json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al obtener el producto');
+    }
+}
 
 module.exports = {
     getProducst,
-    postCreatePorduct
+    postCreatePorduct,
+    getOneProduct
 }
