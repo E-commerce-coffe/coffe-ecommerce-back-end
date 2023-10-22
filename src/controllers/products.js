@@ -18,6 +18,7 @@ const getProducst = async (req, res) => {
         const productLoteValues = allProducts.map((product) => {
             const valorLote = product.lote[0] ? product.lote[0].valor_lote_producto : null;
             return {
+                id: product.id_producto,
                 nombre_producto: product.nombre_producto,
                 descripcion: product.descripcion,
                 pathimag:product.path_imagen,
