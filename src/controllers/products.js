@@ -93,6 +93,14 @@ const getOneProduct = async (req, res) => {
             where: {
                 id_producto: id,
             },
+            include: {
+                lote: {
+                    select: {
+                        valor_lote_producto: true,
+                        stock: true
+                    }
+                }
+            }
         });
 
         if (product == null) {
