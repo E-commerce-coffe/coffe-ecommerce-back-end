@@ -32,6 +32,88 @@ const getProducst = async (req, res) => {
         res.status(500).send('Error al obtener los productos');
     }
 };
+const getOneProduct = async (req, res) => {
+    const id = parseInt(req.query.id);
+    console.log(id); // Asume que el ID del producto se pasa como parámetro en la solicitud
+
+    try {
+        const producto = await prisma.productos.findUnique({
+            where: {
+                id_producto: id
+            },
+            include: {
+                lote: {
+                    select: {
+                        valor_lote_producto: true,
+                        stock: true
+                    }
+                }
+            }
+        });
+
+        if (producto) {
+            const valorLote = producto.lote[0] ? producto.lote[0].valor_lote_producto : null;
+            const stockProduct= producto.lote[0] ? producto.lote[0].stock : null;
+            const productData = {
+                id: producto.id_producto,
+                nombre_producto: producto.nombre_producto,
+                descripcion: producto.descripcion,
+                pathimag: producto.path_imagen,
+                valorLote: valorLote,
+                stock: stockProduct
+            };
+            res.json(productData);
+        } else {
+            res.status(404).json({ message: 'Producto no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al obtener el producto');
+    }
+};
+
+const n= async (req, res) => {
+    try {
+        console.log(req.query.id);
+
+        if (req.params == null) {
+            res.status(400).send('No hay parámetros');
+            return;
+        }
+        const id = parseInt(req.query.id);
+        console.log(id);
+
+        if (isNaN(id)) {
+            res.status(400).send('El parámetro "id" debe ser un número válido.');
+            return;
+        }
+
+        const allProducts = await prisma.productos.findUnique({
+            where: {
+                id_producto: id,
+            },
+            include: {
+                lote: {
+                    select: {
+                        valor_lote_producto: true,
+                        stock: true
+                    }
+                }
+            }
+        });
+       
+
+        if (allProducts == null) {
+            res.status(404).send('No se encontró el producto');
+            return;
+        }
+
+        res.json(allProducts);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al obtener el producto');
+    }
+}
 
 
 const postCreatePorduct = async (req, res) => {
@@ -72,48 +154,6 @@ const postCreatePorduct = async (req, res) => {
         return res.status(500).send('Error al crear el producto');
     }
 };
-
-const getOneProduct = async (req, res) => {
-    try {
-        console.log(req.query.id);
-
-        if (req.params == null) {
-            res.status(400).send('No hay parámetros');
-            return;
-        }
-        const id = parseInt(req.query.id);
-        console.log(id);
-
-        if (isNaN(id)) {
-            res.status(400).send('El parámetro "id" debe ser un número válido.');
-            return;
-        }
-
-        const product = await prisma.productos.findUnique({
-            where: {
-                id_producto: id,
-            },
-            include: {
-                lote: {
-                    select: {
-                        valor_lote_producto: true,
-                        stock: true
-                    }
-                }
-            }
-        });
-
-        if (product == null) {
-            res.status(404).send('No se encontró el producto');
-            return;
-        }
-
-        res.json(product);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Error al obtener el producto');
-    }
-}
 
 module.exports = {
     getProducst,
