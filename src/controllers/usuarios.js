@@ -19,8 +19,8 @@ const getUsers = async (req, res) => {
 const postCreateUser = async (req, res) => {
   try {
     console.log(req.body);
-    const { nombre_usuario, apellido_usuario, documento_usuario,correo_usuario, tipo_documento, tipo_usuario, credenciales } = req.body;
-    if (!nombre_usuario || !apellido_usuario || !documento_usuario || !correo_usuario || !tipo_documento||!tipo_usuario ||!credenciales) {
+    const { nombre_usuario, apellido_usuario, documento_usuario,correo_usuario, tipo_documento, contrasena_usuario, tipo_usuario } = req.body;
+    if (!nombre_usuario || !apellido_usuario || !documento_usuario || !correo_usuario || !tipo_documento||!contrasena_usuario ||!tipo_usuario) {
       res.status(400).send('Los parámetros requeridos no están presentes');
       return;
     }
@@ -49,7 +49,7 @@ const postCreateUser = async (req, res) => {
       }
     });
     const saltRounds = 10;
-    bcrypt.hash(credenciales.contrasena_usuario, saltRounds, async function (err, hash) {
+    bcrypt.hash(contrasena_usuario, saltRounds, async function (err, hash) {
       if (err) {
         console.error(err);
         res.status(500).json({ error: 'Usuario no creado' });
@@ -102,10 +102,11 @@ const postLogin = async (req, res) => {
       return res.status(400).send("Usuario no encontrado");
     }
     console.log('entro login ');
-
+    const user= await prisma.personas.findUnique({where:{correo_usuario:usuario}});
     if (await validatePassword(contrasena, usuario)) {
       console.log('contraseña correcta');
-      const token = jwt.sign({}, process.env.JWT_SECRET, {
+      //generar token se sesion 
+      const token = jwt.sign({ id: user.id_persona, nombre: user.nombre_usuario}, process.env.JWT_SECRET, {
         expiresIn: '60s',
       });
       return res.json({ token: token, message: 'Inicio de sesión correcto' });
