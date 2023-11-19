@@ -3,8 +3,8 @@ describe('Prueba de inicio de sesión con Cypress', () => {
       // Supongamos que tienes una función en tu servidor que desencripta los datos
       // y responde con un token y un mensaje
       cy.request('POST', 'http://localhost:3000/users/login', {
-        usuario: 'U2FsdGVkX18W2EHTjjKPeu7PbjJAtiqU5/3F6tzDgw+JNJ/BneK7iNOwunDdggoH',
-        contrasena: 'U2FsdGVkX1/sGVgFfTXzSYDExoMS/EQc0x0f7jNeifQ=',
+        usuario: 'U2FsdGVkX19xIowl2gTChT+xS9ymWXp1jEYeVxl4C2M=',
+        contrasena: 'dan1234',
       }).then((response) => {
         // Verificar el código de estado
         expect(response.status).to.equal(200);
