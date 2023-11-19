@@ -106,7 +106,7 @@ const postLogin = async (req, res) => {
     if (await validatePassword(contrasena, usuario)) {
       console.log('contraseña correcta');
       //generar token se sesion 
-      const token = jwt.sign({ id: user.id_persona, nombre: user.nombre_usuario}, process.env.JWT_SECRET, {
+      const token = jwt.sign({ id: user.id_persona, nombre: user.nombre_usuario,apellido:user.apellido_usuario,tipo_usuario:user.tipo_usuario}, process.env.JWT_SECRET, {
         expiresIn: '60s',
       });
       return res.json({ token: token, message: 'Inicio de sesión correcto' });
