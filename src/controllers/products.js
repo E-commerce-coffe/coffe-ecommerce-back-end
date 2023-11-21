@@ -199,8 +199,10 @@ const postCreatePorduct = async (req, res) => {
                 }
             },
         });
-        
-        return res.status(200).json(producto); // Enviar la respuesta al cliente
+        return res.status(201).json({
+            message: 'Producto creado correctamente',
+            producto: producto
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).send('Error al crear el producto');
