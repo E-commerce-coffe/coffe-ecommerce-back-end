@@ -1,10 +1,11 @@
 const { PrismaClient } = require('@prisma/client')
-const { get } = require('../routers/routerUsuarios')
+const { get, search } = require('../routers/routerUsuarios')
 const prisma = new PrismaClient()
 
 
-const getProducst = async (req, res) => {
+const searchProduct = async (req, res) => {
     try {
+        const { search } = req.query; // Nota: se cambió a req.query para obtener parámetros de la URL
         const allProducts = await prisma.productos.findMany({
             include: {
                 lote: {
@@ -15,7 +16,57 @@ const getProducst = async (req, res) => {
             }
         });
 
-        const productLoteValues = allProducts.map((product) => {
+        let filteredProducts;
+        if (search && search.trim() !== '') {
+            filteredProducts = allProducts.filter(product =>
+                product.nombre_producto.toLowerCase().includes(search.toLowerCase())
+            );
+        } else {
+            filteredProducts = allProducts;
+        }
+
+        const productLoteValues = filteredProducts.map((product) => {
+            const valorLote = product.lote[0] ? product.lote[0].valor_lote_producto : null;
+            return {
+                id: product.id_producto,
+                nombre_producto: product.nombre_producto,
+                descripcion: product.descripcion,
+                pathimag:product.path_imagen,
+                valorLote: valorLote
+            };
+        });
+
+        res.json(productLoteValues);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error al obtener los productos');
+    }
+};
+
+
+const getProducts = async (req, res) => {
+    try {
+        const { search } = req.query; // Nota: se cambió a req.query para obtener parámetros de la URL
+        const allProducts = await prisma.productos.findMany({
+            include: {
+                lote: {
+                    select: {
+                        valor_lote_producto: true
+                    }
+                }
+            }
+        });
+
+        let filteredProducts;
+        if (search) {
+            filteredProducts = allProducts.filter(product =>
+                product.nombre_producto.toLowerCase().includes(search.toLowerCase())
+            );
+        } else {
+            filteredProducts = allProducts;
+        }
+
+        const productLoteValues = filteredProducts.map((product) => {
             const valorLote = product.lote[0] ? product.lote[0].valor_lote_producto : null;
             return {
                 id: product.id_producto,
@@ -156,7 +207,8 @@ const postCreatePorduct = async (req, res) => {
 };
 
 module.exports = {
-    getProducst,
+    getProducts,
     postCreatePorduct,
-    getOneProduct
+    getOneProduct,
+    searchProduct
 }
