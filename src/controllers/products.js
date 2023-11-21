@@ -174,14 +174,14 @@ const postCreatePorduct = async (req, res) => {
             return;
         }
 
-        const { nombre, descripcion, categoria, pathImagen, estado, lote } = req.body;
+        const { nombre_producto, descripcion, categoria, pathImagen, estado, valor_lote_producto,stock} = req.body;
 
-        if (!nombre || !descripcion || !categoria || !pathImagen || !estado || !lote) {
+        if (!nombre_producto || !descripcion || !categoria || !pathImagen || !estado || !valor_lote_producto || !stock) {
             res.status(400).send('Los parámetros requeridos no están presentes');
             return;
         }
 
-        console.log("entre");
+        console.log("entre producto");
 
         const producto = await prisma.productos.create({
             data: {
@@ -190,12 +190,18 @@ const postCreatePorduct = async (req, res) => {
                 categoria: categoria,
                 path_imagen: pathImagen,
                 estado: estado,
-                lote: {
-                    create: {
-                        valor_lote_producto: lote.valorLote,
-                        stock: lote.stockLote,
-                    },
-                },
+            },
+        });
+        console.log("entre lote");
+        const lote = await prisma.lote.create({
+            data: {
+                valor_lote_producto: valor_lote_producto,
+                stock: stock,
+                productos: {
+                    connect: {
+                        id_producto: producto.id_producto
+                    }
+                }
             },
         });
         
