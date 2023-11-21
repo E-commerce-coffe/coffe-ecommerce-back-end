@@ -185,7 +185,7 @@ const postCreatePorduct = async (req, res) => {
 
         const producto = await prisma.productos.create({
             data: {
-                nombre_producto: nombre,
+                nombre_producto: nombre_producto,
                 descripcion: descripcion,
                 categoria: categoria,
                 path_imagen: pathImagen,
