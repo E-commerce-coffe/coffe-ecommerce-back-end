@@ -169,14 +169,15 @@ const n= async (req, res) => {
 
 const postCreatePorduct = async (req, res) => {
     try {
+        console.log(req.body);
         if (req.body == null) {
             res.status(400).send('No hay parámetros en el body');
             return;
         }
 
-        const { nombre_producto, descripcion, categoria, pathImagen, estado, valor_lote_producto,stock} = req.body;
+        const { nombre_producto, descripcion, categoria, path_imagen, estado, valor_lote_producto,stock} = req.body;
 
-        if (!nombre_producto || !descripcion || !categoria || !pathImagen || !estado || !valor_lote_producto || !stock) {
+        if (!nombre_producto || !descripcion || !categoria || !path_imagen || !estado || !valor_lote_producto || !stock) {
             res.status(400).send('Los parámetros requeridos no están presentes');
             return;
         }
@@ -188,24 +189,18 @@ const postCreatePorduct = async (req, res) => {
                 nombre_producto: nombre_producto,
                 descripcion: descripcion,
                 categoria: categoria,
-                path_imagen: pathImagen,
+                path_imagen: path_imagen,
                 estado: estado,
-            },
-        });
-        console.log("entre lote");
-        const lote = await prisma.lote.create({
-            data: {
-                valor_lote_producto: valor_lote_producto,
-                stock: stock,
-                productos: {
-                    connect: {
-                        id_producto: producto.id_producto
+                lote: {
+                    create: {
+                        valor_lote_producto: valor_lote_producto,
+                        stock: stock
                     }
                 }
             },
         });
         
-        return res.status(200).json(producto,); // Enviar la respuesta al cliente
+        return res.status(200).json(producto); // Enviar la respuesta al cliente
     } catch (error) {
         console.error(error);
         return res.status(500).send('Error al crear el producto');
